@@ -128,7 +128,7 @@ public class QuadTree implements Serializable {
 			} else {
 				// Number of node exceed the capacity split and then rearrange
 				// the Points if (this.level < Long.MAX_VALUE)
-				if (this.level < 20) {
+				if (this.level < 16) {
 					this.split();
 					this.elements.add(p);
 					//this.bucket.incrementtVersionCount(p.date);
@@ -283,7 +283,7 @@ public class QuadTree implements Serializable {
 	public void StoreRectanglesToArrayText() throws IOException {
 
 		OutputStreamWriter writer = new OutputStreamWriter(
-				new FileOutputStream("D:\\test_mbrsz.txt", false), "UTF-8");
+				new FileOutputStream("D:\\test_mbrsz3.txt", false), "UTF-8");
 
 		//writer.write("{");
 		printAllNodes(this, writer,false);
@@ -293,7 +293,7 @@ public class QuadTree implements Serializable {
 
 	public static QuadTree build(String path, String sep) throws IOException {
 		
-		QuadTree q = new QuadTree(new Rectangle(-180.0, -9.0, 180.0, 90.0), 1);
+		QuadTree q = new QuadTree(new Rectangle(-180.0, -9.0, 180.0, 90.0), 300000);
 
 		Scanner s = new Scanner(new File(path));
 		while(s.hasNextLine()) {

@@ -19,6 +19,7 @@ import java.util.Random;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.lang.IgniteBiPredicate;
 
@@ -102,35 +103,42 @@ public class ClientNodeCodeStartup {
 	
 	public static String getCache(Point p) throws FileNotFoundException {
 		
-		Random rand = new Random();
-		int randomNum = rand.nextInt((300 - 0) + 1) + 0;
 		Rectangle rect = p.getMBR();
-		File file = new File("D:\\temp\\log"+i+".txt");
-		PrintStream stream = new PrintStream(file);
-		
-        for(int i=0; i<301;i++) {
+		String name = "";
+		boolean t=false;
+		int i=0;
+        while(t==false&&i<55) {
         	Rectangle recttemp = ccache.get("Cache---"+i);
-        	boolean t = rect.x1 >= recttemp.x1 && rect.x2 <= recttemp.x2 && rect.y1 >= recttemp.y1 && rect.y2 <= recttemp.y2;
-        	System.setOut(stream);
-        	if(t==false) System.out.println("Cache "+i+" doesn't conatin a point "+ recttemp.toString());
-        	else System.out.println("Cache---"+i+" Contains the point and the boolean is "+t);  
-        	
+        	t = rect.x1 >= recttemp.x1 && rect.x2 <= recttemp.x2 && rect.y1 >= recttemp.y1 && rect.y2 <= recttemp.y2;
+        	if(t==false) {
+        		name= "";
+        		}
+        	else {
+        		name= "Cache---"+i;
+        		}
+        	i++;
         }
-		
+
 	    // nextInt is normally exclusive of the top value,
 	    // so add 1 to make it inclusive
-	    
-		return "Cache---"+randomNum;
+	    if(name=="") 
+	    	return "Cache---0";
+	    else 
+	    	return name;
 	}
 	
-    public static void main(String[] args) throws Exception {
+    @SuppressWarnings("unchecked")
+	public static void main(String[] args) throws Exception {
         ignite = Ignition.start(ClientConfigurationFactory.createConfiguration());
-        loadFiles(ignite, "D:\\test_mbrsz.txt");
+        loadFiles(ignite, "D:\\test_mbrsz3.txt");
         createCachesFromFile(ignite);    
         System.out.println("File: "+fcache.get(0));
         System.out.println(ignite.cacheNames());
         loadFiles(ignite,"C:\\green.txt");
         insert(ignite);
+        for(int i=0;i<55;i++) {
+        	System.out.println("Size of Cache "+ignite.cache("Cache---"+i).getName()+" "+((ArrayList<Point>) ignite.cache("Cache---"+i).get(0)).size());
+        }
         ignite.destroyCaches(ignite.cacheNames());
         System.out.println(ignite.cacheNames());
         ignite.close();
