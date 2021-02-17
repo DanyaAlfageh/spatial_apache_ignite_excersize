@@ -103,16 +103,16 @@ public class ClientNodeCodeStartup {
 	public static String getCache(Point p) throws FileNotFoundException {
 		
 		Random rand = new Random();
-		int randomNum = rand.nextInt((50 - 0) + 1) + 0;
-		File file = new File("D:\\log.txt");
-		PrintStream stream = new PrintStream(file);
+		int randomNum = rand.nextInt((300 - 0) + 1) + 0;
 		Rectangle rect = p.getMBR();
+		File file = new File("D:\\temp\\log"+i+".txt");
+		PrintStream stream = new PrintStream(file);
 		
-        for(int i=0; i<50;i++) {
+        for(int i=0; i<301;i++) {
         	Rectangle recttemp = ccache.get("Cache---"+i);
-        	boolean t = recttemp.contains(rect);
+        	boolean t = rect.x1 >= recttemp.x1 && rect.x2 <= recttemp.x2 && rect.y1 >= recttemp.y1 && rect.y2 <= recttemp.y2;
         	System.setOut(stream);
-        	if(t==false) System.out.println("Cache "+"doesn't conatin a point "+ recttemp.toString());
+        	if(t==false) System.out.println("Cache "+i+" doesn't conatin a point "+ recttemp.toString());
         	else System.out.println("Cache---"+i+" Contains the point and the boolean is "+t);  
         	
         }
@@ -125,7 +125,7 @@ public class ClientNodeCodeStartup {
 	
     public static void main(String[] args) throws Exception {
         ignite = Ignition.start(ClientConfigurationFactory.createConfiguration());
-        loadFiles(ignite, "D:\\test_mbrsz1.txt");
+        loadFiles(ignite, "D:\\test_mbrsz.txt");
         createCachesFromFile(ignite);    
         System.out.println("File: "+fcache.get(0));
         System.out.println(ignite.cacheNames());
