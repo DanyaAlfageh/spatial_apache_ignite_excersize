@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,12 +100,26 @@ public class ClientNodeCodeStartup {
 			 br.close();
 			}
 	
-	public static String getCache(Point p) {
-	    Random rand = new Random();
-
+	public static String getCache(Point p) throws FileNotFoundException {
+		
+		Random rand = new Random();
+		int randomNum = rand.nextInt((50 - 0) + 1) + 0;
+		File file = new File("D:\\log.txt");
+		PrintStream stream = new PrintStream(file);
+		Rectangle rect = p.getMBR();
+		
+        for(int i=0; i<50;i++) {
+        	Rectangle recttemp = ccache.get("Cache---"+i);
+        	boolean t = recttemp.contains(rect);
+        	System.setOut(stream);
+        	if(t==false) System.out.println("Cache "+"doesn't conatin a point "+ recttemp.toString());
+        	else System.out.println("Cache---"+i+" Contains the point and the boolean is "+t);  
+        	
+        }
+		
 	    // nextInt is normally exclusive of the top value,
 	    // so add 1 to make it inclusive
-	    int randomNum = rand.nextInt((50 - 0) + 1) + 0;
+	    
 		return "Cache---"+randomNum;
 	}
 	
