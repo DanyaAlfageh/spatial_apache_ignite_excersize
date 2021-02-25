@@ -183,7 +183,7 @@ public class Rectangle implements Serializable, Comparable<Rectangle>{
 	      return false;
 	    return (this.x2 > r.x1 && r.x2 > this.x1 && this.y2 > r.y1 && r.y2 > this.y1);
 	  }
-
+	  
 	  public Rectangle getIntersection(Rectangle s) {
 	    if (!s.isIntersected(this))
 	      return null;
