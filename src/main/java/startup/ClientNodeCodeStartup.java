@@ -45,20 +45,15 @@ public class ClientNodeCodeStartup {
 	private static Map <String,IgniteCache<Integer, ArrayList<Point>>> cacheMap;
 	
 	private static File loadFiles(Ignite ignite, String path) {
-		// TODO Auto-generated method stub
-        //long timeload = System.currentTimeMillis();  
+
 		fcache = ignite.getOrCreateCache("FileCache");
 		File f = new File(path);
 		fcache.put(key, f);
 		key++;
-        //long now = System.currentTimeMillis();
-		//long loadTime = now - timeload;
-		//System.out.println("loading "+ path + " took "+loadTime+" milliseconds");
 		return fcache.get(key-1);
-		
 		}
 	
-	 static void createCachesFromFile(Ignite ignite) throws IOException {
+	static void createCachesFromFile(Ignite ignite) throws IOException {
 
 		 cacheMap = new HashMap <String,IgniteCache<Integer, ArrayList<Point>>>();
 		 
@@ -66,25 +61,19 @@ public class ClientNodeCodeStartup {
 		 ccache = ignite.getOrCreateCache("Rectangles");
 		 String line = null;
 		 while ((line = br.readLine()) != null) {
-		        //long timeload2 = System.currentTimeMillis();  
+			 
 		   String[] parts = line.split(",");
 		   int next = Integer.parseInt(parts[0]);
 		   IgniteCache<Integer, ArrayList<Point>> pcache = ignite.getOrCreateCache("Cache---"+next);
 		   cacheMap.put("Cache---"+next, pcache);
 		   ccache.put(pcache.getName(), new Rectangle(Double.parseDouble(parts[1]),Double.parseDouble(parts[2]),
 				   Double.parseDouble(parts[3]),Double.parseDouble(parts[4])));
-		   //System.out.println(pcache.getName()+" "+ccache.get(pcache.getName()).toString());
-	       // long now2 = System.currentTimeMillis();
-			//long loadTime2 = now2 - timeload2;
-			//System.out.println("Creating a cache takes "+loadTime2+" milliseconds");
+
 		 }
 		 br.close();
-	       // long now = System.currentTimeMillis();
-			//long loadTime = now - timeload;
-			//System.out.println("creation of caches took "+loadTime+" milliseconds");
 		 
 	}
-	public static void insert2(Ignite ignite)throws ParseException, NumberFormatException, IOException {
+	public static void insert(Ignite ignite)throws ParseException, NumberFormatException, IOException {
 		String line = null;
 		for(int i=0;i<qCount;i++) {
 			BufferedReader br = new BufferedReader(new FileReader(fcache.get(1)));
@@ -92,7 +81,6 @@ public class ClientNodeCodeStartup {
 			ArrayList<Point> p = new ArrayList<Point>();
 
 			 while ((line = br.readLine()) != null) {
-				 //long timeload2 = System.currentTimeMillis();     
 			   String[] parts = line.split(",");
 			   double x = Double.parseDouble(parts[1]);
 			   double y = Double.parseDouble(parts[2]);
@@ -102,114 +90,24 @@ public class ClientNodeCodeStartup {
 			   	}
 			   }
 			 ignite.cache("Cache---"+i).put(0, p);
-			 //System.out.println("Cache---"+i+" has "+p.size());
 			 br.close();
 		}
 
 
 	}
-	 
-	@SuppressWarnings("unchecked")
-	public static void insert(Ignite ignite) throws ParseException, NumberFormatException, IOException {
-			// check if there is a child or not before insert
-			// First case if node doesn't have child
-        	//long timeload = System.currentTimeMillis();       
-			ArrayList<Point> p = new ArrayList<Point>();
-			String cachekey;
-			BufferedReader br = new BufferedReader(new FileReader(fcache.get(1)));
-			String line = null;
-			 while ((line = br.readLine()) != null) {
-				 //long timeload2 = System.currentTimeMillis();     
-			   String[] parts = line.split(",");
-			   double x = Double.parseDouble(parts[1]);
-			   double y = Double.parseDouble(parts[2]);
-			   Point point = new Point(x,y);
-			   cachekey=getCache(point);
-				   if(ignite.cache(cachekey).get(0)==null)
-					   {
-					   		p.add(point);
-					   		ignite.cache(cachekey).getAndPutIfAbsent(0, p);
-					   		//System.out.println("Added to "+ignite.cache(cachekey).getName()
-						   			//+" Value"+ignite.cache(cachekey).get(0));
-					   		p.clear();
-					   }
-				   else {
-					 	p = (ArrayList<Point>) ignite.cache(cachekey).get(0);
-					   	p.add(point);
-					   	ignite.cache(cachekey).getAndReplace(0, p);
-					   //	System.out.println("Added to "+ignite.cache(cachekey).getName()
-					   			//+" Value"+ignite.cache(cachekey).get(0));
-					   	p.clear();
 
-			   	}
-				   	//long now2 = System.currentTimeMillis();
-		        	//long loadTime2 = now2 - timeload2;
-		        	//System.out.println("Inserting One point takes "+loadTime2+" milliseconds");
-			   }
-			 br.close();
-	        	//long now = System.currentTimeMillis();
-	        	//long loadTime = now - timeload;
-	        	//System.out.println("Inserting points took "+loadTime+" milliseconds");
-			}
-	
-	public static String getCache(Point p) throws FileNotFoundException {
-		//long timeload = System.currentTimeMillis();  
-		//Rectangle rect = p.getMBR();
-		String name = "";
-		boolean t=false;
-		int i=0;
-		//long timeload2 = System.currentTimeMillis();  
-        while(t==false&&i<qCount) {
-        	
-        	Rectangle recttemp = ccache.get("Cache---"+i);
-        	
-        	t = recttemp.contains(p);
-
-        	
-        	if(t==false) {
-        		name= "";
-        		}
-        	else {
-        		name= "Cache---"+i;
-        		t=true;
-        		}
-        	i++;
-        }
-      	//long now2 = System.currentTimeMillis();
-    	//long loadTime2 = now2 - timeload2;
-    	//System.out.println("Loop for an entry from rectangle cache for insert took "+loadTime2+" milliseconds");
-    	
-    	//long now = System.currentTimeMillis();
-    	//long loadTime = now - timeload;
-    	//System.out.println("Getting caches for insert took "+loadTime+" milliseconds");
-	    if(name=="") 
-	    	return "Cache---0";
-	    else 
-	    	return name;
-	}
 	@SuppressWarnings("unchecked")
 	public static void printCahces(Ignite ignite) {
 		int s=0;
 		for (int key = 0; key < qCount; key++) {
 			 String name = ignite.cache("Cache---"+key).getName();
-			 ArrayList<Point> p = ((ArrayList<Point>) ignite.cache("Cache---"+key).get(0));
-			 if(p==null)
-				{//System.out.println("Cache "+name+" is Null");
-			 	//System.out.println("**********************************************************");
-				 }
-			 else
-			 {		//System.out.println("Cache: "+name+" has "+p.size()+" points. It's mbr is "+ccache.get(name));
-			 		s=s+p.size();
-					//for(int i=0; i<p.size();i++) {
-					//	System.out.print("Rectangle is in caches: "+key+" And the rectangle is "+p.get(i));
-					//}
-					//System.out.println("**********************************************************");
-			 } 
+			 ArrayList<Point> p = ((ArrayList<Point>) ignite.cache(name).get(0));
+			 if(p!=null)
+				 s=s+p.size(); 
 			 System.out.println("The Cache " + key + ", Has " +p.size()+" points");
 
 			 
 		}
-		//System.out.println("Total points in cache are "+s);
 		
 	}
 	
@@ -246,78 +144,23 @@ public class ClientNodeCodeStartup {
 			}
 		}
 		for(int i=0; i<result.size();i++) {
-			//System.out.println("From now on "+file.getAbsolutePath()+" will be your console");
 		    System.setOut(stream);
 			System.out.println("Caches: "+result.get(i)+" is in the range.");
 		}
 		for(int i=0; i<foundPoints.size();i++) {
-			//System.out.println("From now on "+file.getAbsolutePath()+" will be your console");
-		    //System.setOut(stream);
 			System.out.println("Point: "+foundPoints.get(i)+" is in the range.");
 		}
 	}
 	
-	
-	@SuppressWarnings("unchecked")
-/*	public static void rangeQueryPoints(Rectangle s, Ignite ignite) {
-		ArrayList<String> result = new ArrayList<String>();
-		boolean t=true;
-		int temp=0;
-		for(int i=0;i<55;i++) {
-			ArrayList<Point> p = (ArrayList<Point>) ignite.cache("Cache---"+i).get(0);
-			if(p==null) {
-				//System.out.println("Error at "+i);
-			}
-			else{
-				for(int j=0;j<p.size();j++) {
-					if(s.contains(p.get(j))) {
-						temp++;
-					}
-				}
-				if(temp>0)
-					result.add("Cache---"+i);
-			}
-			
-		}
-		for(int i=0; i<result.size();i++) {
-			System.out.println("Rectangle is in caches: "+result.get(i)+" And the rectangle is "+ccache.get(result.get(i)).toString());
-		}
-	}*/
-	
+
     public static void main(String[] args) throws Exception {
-        ignite = Ignition.start(ClientConfigurationFactory.createConfiguration());     
-        long timeload = System.currentTimeMillis();        
+        ignite = Ignition.start(ClientConfigurationFactory.createConfiguration());          
         loadFiles(ignite, "D:\\test_mbrsz7.txt");
-        long now = System.currentTimeMillis();
-		long loadTime = now - timeload;
-		//System.out.println("Loading took "+loadTime+" milliseconds");
-		
-        long timecreate = System.currentTimeMillis();  
-        createCachesFromFile(ignite);
-        long now2 = System.currentTimeMillis();
-		long createtime = now2 - timecreate;
-		//System.out.println("Creation took "+createtime+" milliseconds");
-		
-        //System.out.println("File: "+fcache.get(0));
-        
-        //System.out.println(ignite.cacheNames());
-        
-        long timeloadtest = System.currentTimeMillis();    
+        createCachesFromFile(ignite);  
         loadFiles(ignite,"C:\\green.txt");
-        long now3 = System.currentTimeMillis();
-		long loadTimetest = now3 - timeloadtest;
-		//System.out.println("loading points took "+loadTimetest+" milliseconds");
-		
-		long inserttime = System.currentTimeMillis();  
-        //insert(ignite);
-        insert2(ignite);
-        long now4 = System.currentTimeMillis();
-		long timeinsert = now4 - inserttime;
-		System.out.println("Insertion took "+timeinsert+" milliseconds");
-        
+        insert(ignite);
         printCahces(ignite);
-        rangeQuery(new Rectangle(-73.916015625,40.64501953125,-73.828125,40.83837890625),ignite);	
-        //rangeQueryPoints(new Rectangle(-73.916015625,40.64501953125,-73.828125,40.83837890625),ignite);
+        rangeQuery(new Rectangle(-73.916015625,40.64501953125,-73.828125,40.83837890625),ignite);
         ignite.destroyCaches(ignite.cacheNames());
         System.out.println(ignite.cacheNames());
         ignite.close();
