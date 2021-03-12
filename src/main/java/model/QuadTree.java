@@ -293,7 +293,7 @@ public class QuadTree implements Serializable {
 
 	public static QuadTree build(String path, String sep) throws IOException {
 		
-		QuadTree q = new QuadTree(new Rectangle(-260, -130, 260, 130), 1);
+		QuadTree q = new QuadTree(new Rectangle(-180, -90, 180, 90), 100000);
 
 		Scanner s = new Scanner(new File(path));
 		while(s.hasNextLine()) {
