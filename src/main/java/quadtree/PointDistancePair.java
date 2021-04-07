@@ -1,4 +1,4 @@
-package model;
+package quadtree;
 
 public class PointDistancePair implements Comparable<PointDistancePair>{
 	Point point;

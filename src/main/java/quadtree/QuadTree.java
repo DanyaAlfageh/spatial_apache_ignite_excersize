@@ -1,4 +1,4 @@
-package model;
+package quadtree;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,9 +1,9 @@
 package startup;
 
 import config.ClientConfigurationFactory;
-import model.Point;
-import model.PointDistancePair;
-import model.Rectangle;
+import quadtree.Point;
+import quadtree.PointDistancePair;
+import quadtree.Rectangle;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,11 +11,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
@@ -149,7 +153,7 @@ public class ClientNodeCodeStartup {
 		}
 	}
 	
-	public static void knnQuery(Point point, int k, Ignite ignite) {
+	public static void knnQuery(Point point, int k, Ignite ignite, String path) {
 		
 			int key=0;
 			IgniteCache <String,Rectangle> cache = ignite.cache("Rectangles");
@@ -181,7 +185,16 @@ public class ClientNodeCodeStartup {
 				
 			}	
 		}
-		writeToFile(nearestPoints,"D:\\knnResults.txt");
+		
+		PointDistancePair [] sortedPoints = new PointDistancePair[nearestPoints.size()];
+		sortedPoints = nearestPoints.toArray(sortedPoints);
+		Arrays.sort(sortedPoints, Collections.reverseOrder());
+		List<PointDistancePair> sortedPointList = Arrays.asList(sortedPoints);
+		
+		writeToFile(sortedPointList,path+"knnResults.txt");
+        ignite.destroyCaches(ignite.cacheNames());
+        //System.out.println(ignite.cacheNames());
+        ignite.close();
 	}
 	/*
 	private static double getlargestDistance(ArrayList<PointDistancePair> nearestPoints, double distance, double largestDistance, Point point) {
@@ -227,8 +240,6 @@ public class ClientNodeCodeStartup {
         try {
 		OutputStreamWriter writer = new OutputStreamWriter(
 				new FileOutputStream(filePath, false), "UTF-8");
-		//0,74,40
-		//1,75,60
 		int i=0;
 		for(PointDistancePair p: points) {
 			writer.write(i+","+p.getPoint().x+","+p.getPoint().y+","+p.getDistance()+"\n");
@@ -244,17 +255,45 @@ public class ClientNodeCodeStartup {
     
 	
 	public static void main(String[] args) throws Exception {
-        ignite = Ignition.start(ClientConfigurationFactory.createConfiguration());          
-        loadFiles(ignite, "D:\\test_mbrsz7.txt");
+        ignite = Ignition.start(ClientConfigurationFactory.createConfiguration());    
+        
+        // Enter data using BufferReader 
+        BufferedReader reader = new BufferedReader( 
+            new InputStreamReader(System.in)); 
+        System.out.println("Insert file name:"); 
+        // Reading data using readLine 
+        String name = reader.readLine(); 
+        //D:\\test_mbrsz7.txt
+        // Printing the read line 
+        System.out.println(name); 
+        String path = name;
+        
+        loadFiles(ignite, path);
         createCachesFromFile(ignite);  
-        loadFiles(ignite,"C:\\green.txt");
+        System.out.println("Insert 2nd file name:"); 
+        String name2 = reader.readLine(); 
+        //D:\\test_mbrsz7.txt
+        // Printing the read line 
+        System.out.println(name2); 
+        String path2 = name2;
+        //C:\\green.txt
+        loadFiles(ignite,path2);
         insert(ignite);
         //printCahces(ignite);
         rangeQuery(new Rectangle(-73.916015625,40.64501953125,-73.828125,40.83837890625),ignite);
-        knnQuery(new Point(-73.916015625,40.64501953125),11,ignite);
-        ignite.destroyCaches(ignite.cacheNames());
-        System.out.println(ignite.cacheNames());
-        ignite.close();
+        
+        System.out.println("Insert Output Directory name:"); 
+        String name3 = reader.readLine(); 
+        //D:\\test_mbrsz7.txt
+        // Printing the read line 
+        System.out.println(name3); 
+        String path3 = name3;
+        //C:\\green.txt
+        
+        knnQuery(new Point(-73.916015625,40.64501953125),11,ignite,path3);
+        //ignite.destroyCaches(ignite.cacheNames());
+        //System.out.println(ignite.cacheNames());
+        //ignite.close();
     }
 
 
